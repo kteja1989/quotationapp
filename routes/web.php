@@ -3,6 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
+//Route::view('/test-counter', \App\Livewire\TestCounter::class);
+Route::get('/test-counter', \App\Livewire\TestCounter::class);
+
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
