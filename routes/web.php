@@ -3,8 +3,13 @@
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
+use App\Livewire\Customers\CustomerList;
+use App\Livewire\Customers\CustomerForm;
+
+
 //Route::view('/test-counter', \App\Livewire\TestCounter::class);
 Route::get('/test-counter', \App\Livewire\TestCounter::class);
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -15,6 +20,10 @@ Route::view('dashboard', 'dashboard')
     ->name('dashboard');
 
 Route::middleware(['auth'])->group(function () {
+
+    Route::get('/customers', CustomerList::class)->name('customers');
+    Route::get('/customers/create', CustomerForm::class)->name('customers.create');
+    
     Route::redirect('settings', 'settings/profile');
 
     Volt::route('settings/profile', 'settings.profile')->name('settings.profile');
