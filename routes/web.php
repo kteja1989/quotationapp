@@ -23,6 +23,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/customers', CustomerList::class)->name('customers');
     Route::get('/customers/create', CustomerForm::class)->name('customers.create');
+    Route::get('/customers/{customer}/edit', CustomerForm::class)->name('customers.edit');
     
     Route::redirect('settings', 'settings/profile');
 

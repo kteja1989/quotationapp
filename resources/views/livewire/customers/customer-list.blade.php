@@ -10,7 +10,32 @@
             </flux:text>
         </div>
 
-        <flux:button variant="primary">
+        <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+
+        <div class="w-full md:max-w-md">
+            <flux:input
+                wire:model.live="search"
+                placeholder="Search customers..."
+                icon="magnifying-glass"
+            />
+        </div>
+
+            <div class="w-full md:w-48">
+                <flux:select wire:model.live="status">
+                    <flux:select.option value="all">All Customers</flux:select.option>
+                    <flux:select.option value="active">Active</flux:select.option>
+                    <flux:select.option value="inactive">Inactive</flux:select.option>
+                </flux:select>
+            </div>
+
+        </div>
+
+        <flux:button
+            href="{{ route('customers.create') }}"
+            variant="primary"
+            wire:navigate
+        >
+
            + Add Customer
         </flux:button>
     </div>
@@ -38,6 +63,8 @@
                             <th class="px-6 py-3 font-medium">Contact Person</th>
                             <th class="px-6 py-3 font-medium">Email</th>
                             <th class="px-6 py-3 font-medium">Phone</th>
+                            <th class="px-6 py-3 font-medium text-right">Status</th>
+                            <th class="px-6 py-3 font-medium text-right">Actions</th>
                         </tr>
                     </thead>
 
@@ -59,6 +86,50 @@
                                 <td class="px-6 py-4">
                                     {{ $customer->phone ?? '—' }}
                                 </td>
+
+                                <td class="px-6 py-4">
+                                    @if ($customer->is_active)
+                                        <flux:badge variant="success">Active</flux:badge>
+                                    @else
+                                        <flux:badge variant="danger">Inactive</flux:badge>
+                                    @endif
+                                </td>
+
+
+                                <td class="px-6 py-4 text-right">
+                                    <div class="flex justify-end gap-2">
+
+                                        <flux:button
+                                            href="{{ route('customers.edit', $customer) }}"
+                                            variant="ghost"
+                                            size="sm"
+                                            wire:navigate
+                                        >
+                                            Edit
+                                        </flux:button>
+
+                                        @if ($customer->is_active)
+                                            <flux:button
+                                                variant="ghost"
+                                                size="sm"
+                                                wire:click="toggleStatus({{ $customer->id }})"
+                                            >
+                                                Deactivate
+                                            </flux:button>
+                                        @else
+                                            <flux:button
+                                                variant="ghost"
+                                                size="sm"
+                                                wire:click="toggleStatus({{ $customer->id }})"
+                                            >
+                                                Activate
+                                            </flux:button>
+                                        @endif
+
+                                    </div>
+                                </td>
+
+
                             </tr>
                         @endforeach
                     </tbody>
