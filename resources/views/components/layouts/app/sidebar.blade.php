@@ -18,6 +18,7 @@
 
                 <flux:navlist.group heading="Quotation Management" class="grid">
                     <flux:navlist.item icon="users" :href="route('customers')" :current="request()->routeIs('customers')" wire:navigate>Customers</flux:navlist.item>
+                    <flux:navlist.item icon="cube" :href="route('products')" :current="request()->routeIs('products')" wire:navigate>Products & Services</flux:navlist.item>
                 </flux:navlist.group>
             </flux:navlist>
 
