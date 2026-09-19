@@ -5,8 +5,12 @@ use Livewire\Volt\Volt;
 
 use App\Livewire\Customers\CustomerList;
 use App\Livewire\Customers\CustomerForm;
+
 use App\Livewire\Products\ProductList;
 use App\Livewire\Products\ProductForm;
+
+use App\Livewire\Quotations\QuotationList;
+use App\Livewire\Quotations\QuotationForm;
 
 
 //Route::view('/test-counter', \App\Livewire\TestCounter::class);
@@ -33,6 +37,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/products/create', ProductForm::class)->name('products.create');
     Route::get('/products/{product}/edit', ProductForm::class)->name('products.edit');
 
+// Quotations
+    Route::get('/quotations', QuotationList::class)->name('quotations');
+    Route::get('/quotations/create', QuotationForm::class)->name('quotations.create');
+    Route::get('/quotations/{quotation}/edit', QuotationForm::class)->name('quotations.edit');
 
     Route::redirect('settings', 'settings/profile');
 

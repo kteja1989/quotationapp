@@ -26,6 +26,19 @@ class Quotation extends Model
         'notes',
         'terms',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'quotation_date' => 'date:Y-m-d',
+            'valid_until' => 'date:Y-m-d',
+            'gst_applicable' => 'boolean',
+            'gst_rate' => 'decimal:2',
+            'subtotal' => 'decimal:2',
+            'gst_amount' => 'decimal:2',
+            'grand_total' => 'decimal:2',
+        ];
+    }
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
