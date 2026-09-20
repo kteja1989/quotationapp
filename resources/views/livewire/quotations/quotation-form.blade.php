@@ -2,7 +2,7 @@
 
     {{-- Page Header --}}
     <div>
-        <flux:heading size="xl">New Quotation</flux:heading>
+        <flux:heading size="xl"> {{ $quotation ? 'Edit Quotation' : 'New Quotation' }} </flux:heading>
 
         <flux:text class="mt-2">
             Create a quotation for a customer.

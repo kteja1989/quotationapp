@@ -113,8 +113,8 @@ class QuotationForm extends Component
             $this->quotation = $quotation;
 
             $this->customer_id = $quotation->customer_id;
-            $this->quotation_date = $quotation->quotation_date;
-            $this->valid_until = $quotation->valid_until ?? '';
+            $this->quotation_date = $quotation->quotation_date?->format('Y-m-d') ?? '';
+            $this->valid_until = $quotation->valid_until?->format('Y-m-d') ?? '';
             $this->subject = $quotation->subject ?? '';
             $this->service_arrangement = $quotation->service_arrangement ?? '';
             $this->gst_applicable = (bool) $quotation->gst_applicable;
@@ -177,6 +177,7 @@ class QuotationForm extends Component
         );
     }
 
+    /*
     public function save(): void
     {
         $this->validate([
@@ -232,6 +233,107 @@ class QuotationForm extends Component
             }
 
             $this->quotation = $quotation;
+        });
+
+        $this->redirectRoute('quotations');
+    }
+    */
+
+    public function save(): void
+    {
+        $this->validate([
+            'customer_id' => ['required', 'exists:customers,id'],
+            'quotation_date' => ['required', 'date'],
+            'valid_until' => ['nullable', 'date', 'after_or_equal:quotation_date'],
+            'subject' => ['nullable', 'string', 'max:255'],
+            'service_arrangement' => ['nullable', 'string'],
+            'gst_applicable' => ['boolean'],
+            'gst_rate' => ['required', 'numeric', 'min:0'],
+            'items' => ['required', 'array', 'min:1'],
+            'items.*.product_id' => ['required', 'exists:products,id'],
+            'items.*.description' => ['nullable', 'string'],
+            'items.*.duration' => ['nullable', 'string', 'max:255'],
+            'items.*.quantity' => ['required', 'numeric', 'gt:0'],
+            'items.*.unit_price' => ['required', 'numeric', 'min:0'],
+        ]);
+
+        $this->calculateTotals();
+
+        DB::transaction(function () {
+
+            if ($this->quotation !== null && $this->quotation->exists) {
+
+                // Update existing quotation
+                $this->quotation->update([
+                    'customer_id' => $this->customer_id,
+                    'quotation_date' => $this->quotation_date,
+                    'valid_until' => $this->valid_until ?: null,
+                    'subject' => $this->subject,
+                    'service_arrangement' => $this->service_arrangement,
+                    'gst_applicable' => $this->gst_applicable,
+                    'gst_rate' => $this->gst_applicable ? $this->gst_rate : 0,
+                    'subtotal' => $this->subtotal,
+                    'gst_amount' => $this->gst_amount,
+                    'grand_total' => $this->grand_total,
+                ]);
+
+                // Replace existing quotation items
+                $this->quotation->quotationItems()->delete();
+
+                foreach ($this->items as $item) {
+
+                    $this->quotation->quotationItems()->create([
+                        'product_id' => $item['product_id'],
+                        'description' => $item['description'] ?? '',
+                        'duration' => $item['duration'] ?? '',
+                        'quantity' => $item['quantity'],
+                        'unit_price' => $item['unit_price'],
+                        'base_amount' => $item['base_amount'],
+                        'gst_rate' => $this->gst_applicable
+                            ? $this->gst_rate
+                            : 0,
+                        'gst_amount' => $item['gst_amount'],
+                        'total_amount' => $item['total_amount'],
+                    ]);
+                }
+
+            } else {
+
+                // Create new quotation
+                $quotation = Quotation::create([
+                    'quotation_number' => $this->generateQuotationNumber(),
+                    'customer_id' => $this->customer_id,
+                    'quotation_date' => $this->quotation_date,
+                    'valid_until' => $this->valid_until ?: null,
+                    'subject' => $this->subject,
+                    'service_arrangement' => $this->service_arrangement,
+                    'gst_applicable' => $this->gst_applicable,
+                    'gst_rate' => $this->gst_applicable ? $this->gst_rate : 0,
+                    'subtotal' => $this->subtotal,
+                    'gst_amount' => $this->gst_amount,
+                    'grand_total' => $this->grand_total,
+                    'status' => 'Draft',
+                ]);
+
+                foreach ($this->items as $item) {
+
+                    $quotation->quotationItems()->create([
+                        'product_id' => $item['product_id'],
+                        'description' => $item['description'] ?? '',
+                        'duration' => $item['duration'] ?? '',
+                        'quantity' => $item['quantity'],
+                        'unit_price' => $item['unit_price'],
+                        'base_amount' => $item['base_amount'],
+                        'gst_rate' => $this->gst_applicable
+                            ? $this->gst_rate
+                            : 0,
+                        'gst_amount' => $item['gst_amount'],
+                        'total_amount' => $item['total_amount'],
+                    ]);
+                }
+
+                $this->quotation = $quotation;
+            }
         });
 
         $this->redirectRoute('quotations');

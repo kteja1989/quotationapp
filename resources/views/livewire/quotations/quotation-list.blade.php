@@ -177,16 +177,13 @@
                                         <flux:button
                                             variant="ghost"
                                             size="sm"
+                                            wire:navigate
+                                            
                                         >
                                             View
                                         </flux:button>
 
-                                        <flux:button
-                                            variant="ghost"
-                                            size="sm"
-                                        >
-                                            Edit
-                                        </flux:button>
+                                        <flux:button href="{{ route('quotations.edit', $quotation) }}" variant="ghost" size="sm" wire:navigate> Edit </flux:button>
 
                                     </div>
                                 </td>
