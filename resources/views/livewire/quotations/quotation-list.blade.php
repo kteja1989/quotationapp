@@ -174,14 +174,7 @@
                                 <td class="px-6 py-4">
                                     <div class="flex justify-end gap-2">
 
-                                        <flux:button
-                                            variant="ghost"
-                                            size="sm"
-                                            wire:navigate
-                                            
-                                        >
-                                            View
-                                        </flux:button>
+                                        <flux:button href="{{ route('quotations.view', $quotation) }}" variant="ghost" size="sm" wire:navigate> View </flux:button>
 
                                         <flux:button href="{{ route('quotations.edit', $quotation) }}" variant="ghost" size="sm" wire:navigate> Edit </flux:button>
 

@@ -31,6 +31,10 @@ class QuotationForm extends Component
 
     public string $service_arrangement = '';
 
+    public string $notes = '';
+
+    public string $terms = '';
+
     /*
     |--------------------------------------------------------------------------
     | GST
@@ -117,6 +121,8 @@ class QuotationForm extends Component
             $this->valid_until = $quotation->valid_until?->format('Y-m-d') ?? '';
             $this->subject = $quotation->subject ?? '';
             $this->service_arrangement = $quotation->service_arrangement ?? '';
+            $this->notes = $quotation->notes ?? '';
+            $this->terms = $quotation->terms ?? '';
             $this->gst_applicable = (bool) $quotation->gst_applicable;
             $this->gst_rate = (float) $quotation->gst_rate;
 
@@ -247,6 +253,8 @@ class QuotationForm extends Component
             'valid_until' => ['nullable', 'date', 'after_or_equal:quotation_date'],
             'subject' => ['nullable', 'string', 'max:255'],
             'service_arrangement' => ['nullable', 'string'],
+            'notes' => ['nullable', 'string'],
+            'terms' => ['nullable', 'string'],
             'gst_applicable' => ['boolean'],
             'gst_rate' => ['required', 'numeric', 'min:0'],
             'items' => ['required', 'array', 'min:1'],
@@ -270,6 +278,9 @@ class QuotationForm extends Component
                     'valid_until' => $this->valid_until ?: null,
                     'subject' => $this->subject,
                     'service_arrangement' => $this->service_arrangement,
+                    'notes' => $this->notes,
+                    'terms' => $this->terms,
+
                     'gst_applicable' => $this->gst_applicable,
                     'gst_rate' => $this->gst_applicable ? $this->gst_rate : 0,
                     'subtotal' => $this->subtotal,
@@ -307,6 +318,8 @@ class QuotationForm extends Component
                     'valid_until' => $this->valid_until ?: null,
                     'subject' => $this->subject,
                     'service_arrangement' => $this->service_arrangement,
+                    'notes' => $this->notes,
+                    'terms' => $this->terms,
                     'gst_applicable' => $this->gst_applicable,
                     'gst_rate' => $this->gst_applicable ? $this->gst_rate : 0,
                     'subtotal' => $this->subtotal,

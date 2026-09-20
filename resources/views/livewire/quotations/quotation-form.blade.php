@@ -60,6 +60,18 @@
                 placeholder="Describe the service / installation arrangement"
             />
 
+            <flux:textarea
+                wire:model="notes"
+                label="Notes"
+                placeholder="Enter any additional notes for this quotation"
+            />
+
+            <flux:textarea
+                wire:model="terms"
+                label="Terms & Conditions"
+                placeholder="Enter the terms and conditions for this quotation"
+            />
+
         </div>
 
     </div>

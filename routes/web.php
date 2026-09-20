@@ -11,6 +11,7 @@ use App\Livewire\Products\ProductForm;
 
 use App\Livewire\Quotations\QuotationList;
 use App\Livewire\Quotations\QuotationForm;
+use App\Livewire\Quotations\QuotationView;
 
 
 //Route::view('/test-counter', \App\Livewire\TestCounter::class);
@@ -40,6 +41,7 @@ Route::middleware(['auth'])->group(function () {
 // Quotations
     Route::get('/quotations', QuotationList::class)->name('quotations');
     Route::get('/quotations/create', QuotationForm::class)->name('quotations.create');
+    Route::get('/quotations/{quotation}', QuotationView::class)->name('quotations.view');
     Route::get('/quotations/{quotation}/edit', QuotationForm::class)->name('quotations.edit');
 
     Route::redirect('settings', 'settings/profile');
