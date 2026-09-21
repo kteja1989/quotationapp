@@ -1,258 +1,267 @@
-<div class="space-y-6">
+<style>
+    @media print {
+
+        .quotation-document {
+            margin-top: -40px;
+        }
+
+        /* Reduce spacing between quotation sections when printing */
+        .quotation-document > :not([hidden]) ~ :not([hidden]) {
+            margin-top: 8px !important;
+        }
+
+        /* Keep the footer close to the content above it */
+        .quotation-document > .quotation-footer {
+            margin-top: 8px !important;
+        }
+
+    }
+</style>
+
+<div class="quotation-document space-y-6">
 
     {{-- Page Header --}}
     <div class="flex items-center justify-between">
-        <div>
-            <flux:heading size="xl">
-                View Quotation
-            </flux:heading>
 
-            <flux:text class="mt-1">
-                {{ $quotation->quotation_number }}
-            </flux:text>
+        {{-- Company Header --}}
+        <div class="border-b-2 border-cyan-600 pb-3">
+            <div class="text-2xl font-semibold text-cyan-600">
+                Meissa Software Solutions Pvt. Ltd.
+            </div>
+
+            <div class="text-sm text-zinc-600">
+                Aim To Provide Affordable Solutions
+            </div>
         </div>
 
-        <div class="flex gap-2">
-            <flux:button
-                href="{{ route('quotations.edit', $quotation) }}"
-                variant="ghost"
-                wire:navigate
-            >
-                Edit
-            </flux:button>
+        {{-- View Controls --}}
+        <div class="flex justify-end gap-2 print:hidden">
 
-            <flux:button
-                href="{{ route('quotations') }}"
-                variant="ghost"
-                wire:navigate
-            >
-                Back
-            </flux:button>
+            <flux:button href="{{ route('quotations.edit', $quotation) }}" variant="ghost" wire:navigate> Edit </flux:button>
+
+            <flux:button href="{{ route('quotations') }}" variant="ghost" wire:navigate> Back </flux:button>
+
         </div>
     </div>
 
-    {{-- Quotation Details --}}
+
+
+    {{-- Quotation Information --}}
     <flux:card>
-        <div class="grid gap-6 md:grid-cols-2">
+        <table class="w-full text-sm">
+            <tbody>
+                <tr>
+                    {{-- Date --}}
+                    <td class="w-1/4 px-3 py-2 align-top">
+                        <flux:heading size="sm">
+                            Date
+                        </flux:heading>
 
-            <div>
-                <flux:heading size="sm">
-                    Quotation Number
-                </flux:heading>
+                        <flux:text class="mt-1">
+                            {{ $quotation->quotation_date?->format('d M Y') }}
+                        </flux:text>
+                    </td>
 
-                <flux:text class="mt-1">
-                    {{ $quotation->quotation_number }}
-                </flux:text>
-            </div>
+                    {{-- Quote Number --}}
+                    <td class="w-1/4 px-3 py-2 align-top">
+                        <flux:heading size="sm">
+                            Quote No.
+                        </flux:heading>
 
-            <div>
-                <flux:heading size="sm">
-                    Status
-                </flux:heading>
+                        <flux:text class="mt-1">
+                            {{ $quotation->quotation_number }}
+                        </flux:text>
+                    </td>
 
-                <flux:text class="mt-1">
-                    {{ $quotation->status }}
-                </flux:text>
-            </div>
+                    {{-- Valid Until --}}
+                    <td class="w-1/4 px-3 py-2 align-top">
+                        <flux:heading size="sm">
+                            Valid Until
+                        </flux:heading>
 
-            <div>
-                <flux:heading size="sm">
-                    Quotation Date
-                </flux:heading>
+                        <flux:text class="mt-1">
+                            {{ $quotation->valid_until?->format('d M Y') ?? '—' }}
+                        </flux:text>
+                    </td>
 
-                <flux:text class="mt-1">
-                    {{ $quotation->quotation_date?->format('d M Y') }}
-                </flux:text>
-            </div>
+                    {{-- Installation --}}
+                    <td class="w-1/4 px-3 py-2 align-top">
+                        <flux:heading size="sm">
+                            Installation
+                        </flux:heading>
 
-            <div>
-                <flux:heading size="sm">
-                    Valid Until
-                </flux:heading>
-
-                <flux:text class="mt-1">
-                    {{ $quotation->valid_until?->format('d M Y') ?? '—' }}
-                </flux:text>
-            </div>
-
-        </div>
+                        <flux:text class="mt-1 whitespace-pre-line">
+                            {{ $quotation->service_arrangement ?: '—' }}
+                        </flux:text>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </flux:card>
+
+
 
     {{-- Customer Details --}}
     <flux:card>
-        <flux:heading size="lg">
-            Customer Details
-        </flux:heading>
+        <table class="w-full text-sm">
+            <tbody>
+                <tr>
 
-        <div class="mt-4 grid gap-4 md:grid-cols-2">
+                    {{-- Customer --}}
+                    <td class="w-1/2 px-3 py-2 align-top">
+                        <flux:heading size="sm">
+                            To
+                        </flux:heading>
 
-            <div>
-                <flux:heading size="sm">
-                    Company
-                </flux:heading>
+                        <div class="mt-2">
+                            <div class="font-medium">
+                                {{ $quotation->customer->company_name }}
+                            </div>
 
-                <flux:text class="mt-1">
-                    {{ $quotation->customer->company_name }}
-                </flux:text>
-            </div>
+                            @if ($quotation->customer->contact_person)
+                                <div class="text-zinc-600">
+                                    {{ $quotation->customer->contact_person }}
+                                </div>
+                            @endif
 
-            <div>
-                <flux:heading size="sm">
-                    Contact Person
-                </flux:heading>
+                            <div class="mt-1 text-zinc-600">
+                                @if ($quotation->customer->address_line1)
+                                    {{ $quotation->customer->address_line1 }}<br>
+                                @endif
 
-                <flux:text class="mt-1">
-                    {{ $quotation->customer->contact_person ?: '—' }}
-                </flux:text>
-            </div>
+                                @if ($quotation->customer->address_line2)
+                                    {{ $quotation->customer->address_line2 }}<br>
+                                @endif
 
-            <div>
-                <flux:heading size="sm">
-                    Email
-                </flux:heading>
+                                @if ($quotation->customer->city)
+                                    {{ $quotation->customer->city }}
+                                @endif
 
-                <flux:text class="mt-1">
-                    {{ $quotation->customer->email ?: '—' }}
-                </flux:text>
-            </div>
+                                @if ($quotation->customer->state)
+                                    , {{ $quotation->customer->state }}
+                                @endif
 
-            <div>
-                <flux:heading size="sm">
-                    Phone
-                </flux:heading>
+                                @if ($quotation->customer->pincode)
+                                    - {{ $quotation->customer->pincode }}
+                                @endif
+                            </div>
 
-                <flux:text class="mt-1">
-                    {{ $quotation->customer->phone ?: '—' }}
-                </flux:text>
-            </div>
+                            @if ($quotation->customer->gstin)
+                                <div class="mt-3 text-zinc-600">
+                                    GSTIN: {{ $quotation->customer->gstin }}
+                                </div>
+                            @endif
+                        </div>
+                    </td>
 
-            <div>
-                <flux:heading size="sm">
-                    Address
-                </flux:heading>
+                    {{-- Service Provider --}}
+                    <td class="w-1/2 px-3 py-2 align-top">
+                        <flux:heading size="sm">
+                            Service Provider
+                        </flux:heading>
 
-                <flux:text class="mt-1 whitespace-pre-line">
-                    {{ $quotation->customer->address_line1 ?: '—' }}
-                    @if ($quotation->customer->address_line2)
-                        {{ "\n" . $quotation->customer->address_line2 }}
-                    @endif
-                    @if ($quotation->customer->city)
-                        {{ "\n" . $quotation->customer->city }}
-                    @endif
-                    @if ($quotation->customer->state)
-                        {{ ", " . $quotation->customer->state }}
-                    @endif
-                    @if ($quotation->customer->pincode)
-                        {{ " - " . $quotation->customer->pincode }}
-                    @endif
-                </flux:text>
-            </div>
+                        <div class="mt-2">
+                            <div class="font-medium">
+                                Meissa Software Solutions Pvt. Ltd.
+                            </div>
 
-            <div>
-                <flux:heading size="sm">
-                    GSTIN
-                </flux:heading>
+                            <div class="mt-1 text-zinc-600">
+                                Ph: +91-9881124454
+                            </div>
 
-                <flux:text class="mt-1">
-                    {{ $quotation->customer->gstin ?: '—' }}
-                </flux:text>
-            </div>
+                            <div class="text-zinc-600">
+                                support-meissa@meissa.co.in
+                            </div>
+                        </div>
+                    </td>
 
-        </div>
+                </tr>
+            </tbody>
+        </table>
     </flux:card>
+    
 
-        {{-- Quotation Information --}}
-    <flux:card>
-        <flux:heading size="lg">
-            Quotation Information
-        </flux:heading>
-
-        <div class="mt-4 space-y-4">
-
-            <div>
-                <flux:heading size="sm">
-                    Subject
-                </flux:heading>
-
-                <flux:text class="mt-1">
-                    {{ $quotation->subject ?: '—' }}
-                </flux:text>
-            </div>
-
-            <div>
-                <flux:heading size="sm">
-                    Service Arrangement
-                </flux:heading>
-
-                <flux:text class="mt-1 whitespace-pre-line">
-                    {{ $quotation->service_arrangement ?: '—' }}
-                </flux:text>
-            </div>
-
-        </div>
-    </flux:card>
 
     {{-- Quotation Items --}}
     <flux:card>
-        <flux:heading size="lg">
-            Quotation Items
-        </flux:heading>
-
-        <div class="mt-4 overflow-x-auto">
-            <table class="w-full text-sm">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm border border-zinc-300 border-collapse">
                 <thead>
-                    <tr class="border-b">
-                        <th class="px-3 py-3 text-left">Product / Service</th>
-                        <th class="px-3 py-3 text-left">Description</th>
-                        <th class="px-3 py-3 text-left">Duration</th>
-                        <th class="px-3 py-3 text-right">Qty</th>
-                        <th class="px-3 py-3 text-right">Unit Price</th>
-                        <th class="px-3 py-3 text-right">Base Amount</th>
-                        <th class="px-3 py-3 text-right">GST</th>
-                        <th class="px-3 py-3 text-right">Total</th>
+                    <tr class="border-b-2 border-zinc-800">
+                        <th class="px-3 py-3 text-center font-semibold">
+                            S.No.
+                        </th>
+
+                        <th class="px-3 py-3 text-left font-semibold">
+                            Description
+                        </th>
+
+                        <th class="px-3 py-3 text-left font-semibold">
+                            Duration
+                        </th>
+
+                        <th class="px-3 py-3 text-right font-semibold">
+                            Quantity
+                        </th>
+
+                        <th class="px-3 py-3 text-right font-semibold">
+                            Price
+                        </th>
+
+                        <th class="px-3 py-3 text-right font-semibold">
+                            Total Price
+                        </th>
                     </tr>
                 </thead>
 
                 <tbody>
-                    @foreach ($quotation->quotationItems as $item)
-                        <tr class="border-b">
+                    @foreach ($quotation->quotationItems as $index => $item)
+                        <tr class="border-b border-zinc-300">
+                            
+                            {{-- S.No. --}}
+                            <td class="px-3 py-3 text-center">
+                                {{ $index + 1 }}
+                            </td>
+
+                            {{-- Description --}}
                             <td class="px-3 py-3">
                                 <div class="font-medium">
                                     {{ $item->product->name }}
                                 </div>
 
-                                <div class="text-xs text-zinc-500">
-                                    {{ $item->product->code }}
-                                </div>
+                                @if ($item->product->code)
+                                    <div class="text-xs text-zinc-500">
+                                        Code: {{ $item->product->code }}
+                                    </div>
+                                @endif
+
+                                @if ($item->description)
+                                    <div class="mt-1 text-sm text-zinc-600">
+                                        {{ $item->description }}
+                                    </div>
+                                @endif
                             </td>
 
-                            <td class="px-3 py-3">
-                                {{ $item->description ?: '—' }}
-                            </td>
-
+                            {{-- Duration --}}
                             <td class="px-3 py-3">
                                 {{ $item->duration ?: '—' }}
                             </td>
 
+                            {{-- Quantity --}}
                             <td class="px-3 py-3 text-right">
                                 {{ number_format($item->quantity, 2) }}
                             </td>
 
+                            {{-- Price --}}
                             <td class="px-3 py-3 text-right">
                                 ₹{{ number_format($item->unit_price, 2) }}
                             </td>
 
-                            <td class="px-3 py-3 text-right">
+                            {{-- Total Price --}}
+                            <td class="px-3 py-3 text-right font-medium">
                                 ₹{{ number_format($item->base_amount, 2) }}
                             </td>
 
-                            <td class="px-3 py-3 text-right">
-                                ₹{{ number_format($item->gst_amount, 2) }}
-                            </td>
-
-                            <td class="px-3 py-3 text-right font-medium">
-                                ₹{{ number_format($item->total_amount, 2) }}
-                            </td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -260,70 +269,97 @@
         </div>
     </flux:card>
 
-        {{-- Quotation Summary --}}
-    <flux:card>
-        <div class="flex justify-end">
-            <div class="w-full max-w-md space-y-3">
+    {{-- Quotation Summary --}}
+    <div class="flex justify-end">
 
-                <div class="flex justify-between">
-                    <flux:text>
+        <table class="w-full max-w-md text-sm">
+            <tbody>
+
+                {{-- Subtotal --}}
+                <tr>
+                    <td class="px-3 py-2">
                         Subtotal
-                    </flux:text>
+                    </td>
 
-                    <flux:text>
+                    <td class="px-3 py-2 text-right">
                         ₹{{ number_format($quotation->subtotal, 2) }}
-                    </flux:text>
-                </div>
+                    </td>
+                </tr>
 
-                <div class="flex justify-between">
-                    <flux:text>
+                {{-- GST --}}
+                <tr>
+                    <td class="px-3 py-2">
                         GST
-                    </flux:text>
+                        @if ($quotation->gst_applicable)
+                            ({{ number_format($quotation->gst_rate, 2) }}%)
+                        @endif
+                    </td>
 
-                    <flux:text>
+                    <td class="px-3 py-2 text-right">
                         ₹{{ number_format($quotation->gst_amount, 2) }}
-                    </flux:text>
-                </div>
+                    </td>
+                </tr>
 
-                <div class="border-t pt-3 flex justify-between">
-                    <flux:heading size="lg">
+                {{-- Grand Total --}}
+                <tr class="border-t border-zinc-300">
+                    <td class="px-3 py-3 font-semibold text-base">
                         Grand Total
-                    </flux:heading>
+                    </td>
 
-                    <flux:heading size="lg">
+                    <td class="px-3 py-3 text-right font-semibold text-base">
                         ₹{{ number_format($quotation->grand_total, 2) }}
-                    </flux:heading>
-                </div>
+                    </td>
+                </tr>
 
-            </div>
-        </div>
-    </flux:card>
+            </tbody>
+        </table>
+
+    </div>
+
+
+
+    
 
     {{-- Notes and Terms --}}
-    <flux:card>
-        <div class="space-y-6">
+    <div class="text-sm">
 
-            <div>
-                <flux:heading size="lg">
-                    Notes
-                </flux:heading>
-
-                <flux:text class="mt-2 whitespace-pre-line">
-                    {{ $quotation->notes ?: '—' }}
-                </flux:text>
+        {{-- Notes --}}
+        <div>
+            <div class="font-semibold">
+                Notes
             </div>
 
-            <div>
-                <flux:heading size="lg">
-                    Terms & Conditions
-                </flux:heading>
-
-                <flux:text class="mt-2 whitespace-pre-line">
-                    {{ $quotation->terms ?: '—' }}
-                </flux:text>
+            <div class="mt-1 text-zinc-600 whitespace-pre-line">
+                {{ $quotation->notes ?: '—' }}
             </div>
-
         </div>
-    </flux:card>
+
+        {{-- Terms & Conditions --}}
+        <div class="mt-3">
+            <div class="font-semibold">
+                Terms & Conditions
+            </div>
+
+            <div class="mt-1 text-zinc-600 whitespace-pre-line">
+                {{ $quotation->terms ?: '—' }}
+            </div>
+        </div>
+
+    </div>
+
+
+    {{-- Company Footer --}}
+    <div class="quotation-footer border-t-2 border-cyan-600 pt-2 text-xs text-zinc-600">
+        <div class="flex justify-between gap-6">
+            <div>
+                CIN: U72900PN2017PTC169478
+            </div>
+
+            <div class="text-right">
+                RH24, Lake Paradise, Opp. CRPF, Talegaon Dabhade, Pune - 410507, MH
+                    Ph: +91-9881124454
+            </div>
+        </div>
+    </div>
 
 </div>
