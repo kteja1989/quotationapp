@@ -39,6 +39,8 @@
 
             <flux:button href="{{ route('quotations.edit', $quotation) }}" variant="ghost" wire:navigate> Edit </flux:button>
 
+            <flux:button href="{{ route('quotations.pdf', $quotation) }}" target="_blank" variant="primary" class="print:hidden"> Generate PDF </flux:button>
+
             <flux:button href="{{ route('quotations') }}" variant="ghost" wire:navigate> Back </flux:button>
 
         </div>
