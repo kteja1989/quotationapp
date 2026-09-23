@@ -21,6 +21,8 @@ class QuotationForm extends Component
 
     public ?Quotation $quotation = null;
 
+    public string $status = 'Draft';
+
     public ?int $customer_id = null;
 
     public string $quotation_date = '';
@@ -71,7 +73,6 @@ class QuotationForm extends Component
     |--------------------------------------------------------------------------
     */
 
-    /*
     public function mount(?Quotation $quotation = null): void
     {
         $this->quotation_date = now()->format('Y-m-d');
@@ -80,43 +81,7 @@ class QuotationForm extends Component
             $this->quotation = $quotation;
 
             $this->customer_id = $quotation->customer_id;
-            $this->quotation_date = $quotation->quotation_date;
-            $this->valid_until = $quotation->valid_until ?? '';
-            $this->subject = $quotation->subject ?? '';
-            $this->service_arrangement = $quotation->service_arrangement ?? '';
-            $this->gst_applicable = (bool) $quotation->gst_applicable;
-            $this->gst_rate = (float) $quotation->gst_rate;
-
-            $this->items = $quotation->quotationItems
-                ->map(function ($item) {
-                    return [
-                        'product_id' => $item->product_id,
-                        'description' => $item->description ?? '',
-                        'duration' => $item->duration ?? '',
-                        'quantity' => (float) $item->quantity,
-                        'unit_price' => (float) $item->unit_price,
-                        'base_amount' => (float) $item->base_amount,
-                        'gst_rate' => (float) $item->gst_rate,
-                        'gst_amount' => (float) $item->gst_amount,
-                        'total_amount' => (float) $item->total_amount,
-                    ];
-                })
-                ->toArray();
-
-            $this->calculateTotals();
-        }
-    }
-
-    */
-
-    public function mount(?Quotation $quotation = null): void
-    {
-        $this->quotation_date = now()->format('Y-m-d');
-
-        if ($quotation !== null && $quotation->exists) {
-            $this->quotation = $quotation;
-
-            $this->customer_id = $quotation->customer_id;
+            $this->status = $quotation->status ?? 'Draft';
             $this->quotation_date = $quotation->quotation_date?->format('Y-m-d') ?? '';
             $this->valid_until = $quotation->valid_until?->format('Y-m-d') ?? '';
             $this->subject = $quotation->subject ?? '';
@@ -143,6 +108,7 @@ class QuotationForm extends Component
                 ->toArray();
 
             $this->calculateTotals();
+
         } else {
             $this->items = [
                 [
@@ -172,7 +138,11 @@ class QuotationForm extends Component
         if ($lastQuotation === null) {
             $sequence = 1;
         } else {
-            $lastNumber = (int) substr($lastQuotation->quotation_number, -4);
+            $lastNumber = (int) substr(
+                $lastQuotation->quotation_number,
+                -4
+            );
+
             $sequence = $lastNumber + 1;
         }
 
@@ -184,65 +154,9 @@ class QuotationForm extends Component
     }
 
     /*
-    public function save(): void
-    {
-        $this->validate([
-            'customer_id' => ['required', 'exists:customers,id'],
-            'quotation_date' => ['required', 'date'],
-            'valid_until' => ['nullable', 'date', 'after_or_equal:quotation_date'],
-            'subject' => ['nullable', 'string', 'max:255'],
-            'service_arrangement' => ['nullable', 'string'],
-            'gst_applicable' => ['boolean'],
-            'gst_rate' => ['required', 'numeric', 'min:0'],
-            'items' => ['required', 'array', 'min:1'],
-            'items.*.product_id' => ['required', 'exists:products,id'],
-            'items.*.description' => ['nullable', 'string'],
-            'items.*.duration' => ['nullable', 'string', 'max:255'],
-            'items.*.quantity' => ['required', 'numeric', 'gt:0'],
-            'items.*.unit_price' => ['required', 'numeric', 'min:0'],
-        ]);
-
-        $this->calculateTotals();
-
-        DB::transaction(function () {
-
-            $quotation = Quotation::create([
-                'quotation_number' => $this->generateQuotationNumber(),
-                'customer_id' => $this->customer_id,
-                'quotation_date' => $this->quotation_date,
-                'valid_until' => $this->valid_until ?: null,
-                'subject' => $this->subject,
-                'service_arrangement' => $this->service_arrangement,
-                'gst_applicable' => $this->gst_applicable,
-                'gst_rate' => $this->gst_applicable ? $this->gst_rate : 0,
-                'subtotal' => $this->subtotal,
-                'gst_amount' => $this->gst_amount,
-                'grand_total' => $this->grand_total,
-                'status' => 'Draft',
-            ]);
-
-            foreach ($this->items as $item) {
-
-                $quotation->quotationItems()->create([
-                    'product_id' => $item['product_id'],
-                    'description' => $item['description'] ?? '',
-                    'duration' => $item['duration'] ?? '',
-                    'quantity' => $item['quantity'],
-                    'unit_price' => $item['unit_price'],
-                    'base_amount' => $item['base_amount'],
-                    'gst_rate' => $this->gst_applicable
-                        ? $this->gst_rate
-                        : 0,
-                    'gst_amount' => $item['gst_amount'],
-                    'total_amount' => $item['total_amount'],
-                ]);
-            }
-
-            $this->quotation = $quotation;
-        });
-
-        $this->redirectRoute('quotations');
-    }
+    |--------------------------------------------------------------------------
+    | Save Quotation
+    |--------------------------------------------------------------------------
     */
 
     public function save(): void
@@ -250,7 +164,11 @@ class QuotationForm extends Component
         $this->validate([
             'customer_id' => ['required', 'exists:customers,id'],
             'quotation_date' => ['required', 'date'],
-            'valid_until' => ['nullable', 'date', 'after_or_equal:quotation_date'],
+            'valid_until' => [
+                'nullable',
+                'date',
+                'after_or_equal:quotation_date',
+            ],
             'subject' => ['nullable', 'string', 'max:255'],
             'service_arrangement' => ['nullable', 'string'],
             'notes' => ['nullable', 'string'],
@@ -258,20 +176,40 @@ class QuotationForm extends Component
             'gst_applicable' => ['boolean'],
             'gst_rate' => ['required', 'numeric', 'min:0'],
             'items' => ['required', 'array', 'min:1'],
-            'items.*.product_id' => ['required', 'exists:products,id'],
+            'items.*.product_id' => [
+                'required',
+                'exists:products,id',
+            ],
             'items.*.description' => ['nullable', 'string'],
-            'items.*.duration' => ['nullable', 'string', 'max:255'],
-            'items.*.quantity' => ['required', 'numeric', 'gt:0'],
-            'items.*.unit_price' => ['required', 'numeric', 'min:0'],
+            'items.*.duration' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+            'items.*.quantity' => [
+                'required',
+                'numeric',
+                'gt:0',
+            ],
+            'items.*.unit_price' => [
+                'required',
+                'numeric',
+                'min:0',
+            ],
         ]);
 
         $this->calculateTotals();
 
         DB::transaction(function () {
 
+            /*
+            |--------------------------------------------------------------------------
+            | Update Existing Quotation
+            |--------------------------------------------------------------------------
+            */
+
             if ($this->quotation !== null && $this->quotation->exists) {
 
-                // Update existing quotation
                 $this->quotation->update([
                     'customer_id' => $this->customer_id,
                     'quotation_date' => $this->quotation_date,
@@ -280,15 +218,24 @@ class QuotationForm extends Component
                     'service_arrangement' => $this->service_arrangement,
                     'notes' => $this->notes,
                     'terms' => $this->terms,
+                    'status' => $this->status,
 
                     'gst_applicable' => $this->gst_applicable,
-                    'gst_rate' => $this->gst_applicable ? $this->gst_rate : 0,
+                    'gst_rate' => $this->gst_applicable
+                        ? $this->gst_rate
+                        : 0,
+
                     'subtotal' => $this->subtotal,
                     'gst_amount' => $this->gst_amount,
                     'grand_total' => $this->grand_total,
                 ]);
 
-                // Replace existing quotation items
+                /*
+                |--------------------------------------------------------------------------
+                | Replace Existing Quotation Items
+                |--------------------------------------------------------------------------
+                */
+
                 $this->quotation->quotationItems()->delete();
 
                 foreach ($this->items as $item) {
@@ -300,9 +247,11 @@ class QuotationForm extends Component
                         'quantity' => $item['quantity'],
                         'unit_price' => $item['unit_price'],
                         'base_amount' => $item['base_amount'],
+
                         'gst_rate' => $this->gst_applicable
                             ? $this->gst_rate
                             : 0,
+
                         'gst_amount' => $item['gst_amount'],
                         'total_amount' => $item['total_amount'],
                     ]);
@@ -310,7 +259,12 @@ class QuotationForm extends Component
 
             } else {
 
-                // Create new quotation
+                /*
+                |--------------------------------------------------------------------------
+                | Create New Quotation
+                |--------------------------------------------------------------------------
+                */
+
                 $quotation = Quotation::create([
                     'quotation_number' => $this->generateQuotationNumber(),
                     'customer_id' => $this->customer_id,
@@ -320,11 +274,17 @@ class QuotationForm extends Component
                     'service_arrangement' => $this->service_arrangement,
                     'notes' => $this->notes,
                     'terms' => $this->terms,
+
                     'gst_applicable' => $this->gst_applicable,
-                    'gst_rate' => $this->gst_applicable ? $this->gst_rate : 0,
+                    'gst_rate' => $this->gst_applicable
+                        ? $this->gst_rate
+                        : 0,
+
                     'subtotal' => $this->subtotal,
                     'gst_amount' => $this->gst_amount,
                     'grand_total' => $this->grand_total,
+
+                    // New quotations always start as Draft.
                     'status' => 'Draft',
                 ]);
 
@@ -337,9 +297,11 @@ class QuotationForm extends Component
                         'quantity' => $item['quantity'],
                         'unit_price' => $item['unit_price'],
                         'base_amount' => $item['base_amount'],
+
                         'gst_rate' => $this->gst_applicable
                             ? $this->gst_rate
                             : 0,
+
                         'gst_amount' => $item['gst_amount'],
                         'total_amount' => $item['total_amount'],
                     ]);
@@ -375,7 +337,7 @@ class QuotationForm extends Component
 
     /*
     |--------------------------------------------------------------------------
-    | Calculations
+    | Quotation Items
     |--------------------------------------------------------------------------
     */
 
@@ -388,7 +350,11 @@ class QuotationForm extends Component
             'quantity' => 1,
             'unit_price' => 0,
             'base_amount' => 0,
-            'gst_rate' => $this->gst_applicable ? (float) $this->gst_rate : 0,
+
+            'gst_rate' => $this->gst_applicable
+                ? (float) $this->gst_rate
+                : 0,
+
             'gst_amount' => 0,
             'total_amount' => 0,
         ];
@@ -407,13 +373,20 @@ class QuotationForm extends Component
         $this->calculateTotals();
     }
 
-
+    /*
+    |--------------------------------------------------------------------------
+    | Livewire Updates
+    |--------------------------------------------------------------------------
+    */
 
     public function updatedItems($value, $key): void
     {
         $parts = explode('.', $key);
 
-        if (count($parts) === 2 && $parts[1] === 'product_id') {
+        if (
+            count($parts) === 2 &&
+            $parts[1] === 'product_id'
+        ) {
             $index = (int) $parts[0];
 
             $productId = $this->items[$index]['product_id'] ?? null;
@@ -422,19 +395,32 @@ class QuotationForm extends Component
                 $product = Product::find($productId);
 
                 if ($product) {
-                    $this->items[$index]['description'] = $product->description ?? '';
+                    $this->items[$index]['description'] =
+                        $product->description ?? '';
                 }
             }
         }
 
         if (
             count($parts) === 2 &&
-            in_array($parts[1], ['quantity', 'unit_price'], true)
+            in_array(
+                $parts[1],
+                ['quantity', 'unit_price'],
+                true
+            )
         ) {
             $this->calculateTotals();
         }
     }
 
+
+    /*
+    public function updatedStatus($value): void
+    {
+        $this->status = $value;
+    }
+
+    */
     public function updatedGstApplicable(): void
     {
         $this->calculateTotals();
@@ -447,6 +433,12 @@ class QuotationForm extends Component
         }
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | //Calculations
+    |--------------------------------------------------------------------------
+    */
+
     public function calculateTotals(): void
     {
         $this->subtotal = 0;
@@ -455,6 +447,7 @@ class QuotationForm extends Component
         foreach ($this->items as $index => $item) {
 
             $quantity = (float) ($item['quantity'] ?? 0);
+
             $unitPrice = (float) ($item['unit_price'] ?? 0);
 
             $baseAmount = $quantity * $unitPrice;
@@ -462,24 +455,35 @@ class QuotationForm extends Component
             $gstAmount = 0;
 
             if ($this->gst_applicable) {
-                $gstAmount = $baseAmount * ((float) $this->gst_rate / 100);
+                $gstAmount = $baseAmount *
+                    ((float) $this->gst_rate / 100);
             }
 
             $totalAmount = $baseAmount + $gstAmount;
 
-            $this->items[$index]['base_amount'] = round($baseAmount, 2);
-            $this->items[$index]['gst_rate'] = $this->gst_applicable
-                ? (float) $this->gst_rate
-                : 0;
-            $this->items[$index]['gst_amount'] = round($gstAmount, 2);
-            $this->items[$index]['total_amount'] = round($totalAmount, 2);
+            $this->items[$index]['base_amount'] =
+                round($baseAmount, 2);
+
+            $this->items[$index]['gst_rate'] =
+                $this->gst_applicable
+                    ? (float) $this->gst_rate
+                    : 0;
+
+            $this->items[$index]['gst_amount'] =
+                round($gstAmount, 2);
+
+            $this->items[$index]['total_amount'] =
+                round($totalAmount, 2);
 
             $this->subtotal += $baseAmount;
+
             $this->gst_amount += $gstAmount;
         }
 
         $this->subtotal = round($this->subtotal, 2);
+
         $this->gst_amount = round($this->gst_amount, 2);
+
         $this->grand_total = round(
             $this->subtotal + $this->gst_amount,
             2

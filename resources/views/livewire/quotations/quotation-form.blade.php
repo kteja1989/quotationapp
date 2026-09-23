@@ -32,7 +32,7 @@
                 @endforeach
             </flux:select>
 
-            <div class="grid gap-6 md:grid-cols-2">
+            <div class="grid gap-6 md:grid-cols-3">
 
                 <flux:input
                     wire:model="quotation_date"
@@ -45,6 +45,31 @@
                     type="date"
                     label="Valid Until"
                 />
+
+                <flux:select
+                    wire:model.live="status"
+                    label="Status"
+                >
+                    <flux:select.option value="Draft">
+                        Draft
+                    </flux:select.option>
+
+                    <flux:select.option value="Sent">
+                        Sent
+                    </flux:select.option>
+
+                    <flux:select.option value="Accepted">
+                        Accepted
+                    </flux:select.option>
+
+                    <flux:select.option value="Rejected">
+                        Rejected
+                    </flux:select.option>
+
+                    <flux:select.option value="Expired">
+                        Expired
+                    </flux:select.option>
+                </flux:select>
 
             </div>
 

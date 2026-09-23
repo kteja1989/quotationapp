@@ -44,6 +44,11 @@
                 <flux:select.option value="Rejected">
                     Rejected
                 </flux:select.option>
+
+                <flux:select.option value="Expired">
+                    Expired
+                </flux:select.option>
+
             </flux:select>
         </div>
 
@@ -167,6 +172,12 @@
                                             Rejected
                                         </flux:badge>
 
+                                    @elseif ($quotation->status === 'Expired')
+
+                                        <flux:badge variant="warning">
+                                            Expired
+                                        </flux:badge>
+
                                     @endif
 
                                 </td>
@@ -177,6 +188,8 @@
                                         <flux:button href="{{ route('quotations.view', $quotation) }}" variant="ghost" size="sm" wire:navigate> View </flux:button>
 
                                         <flux:button href="{{ route('quotations.edit', $quotation) }}" variant="ghost" size="sm" wire:navigate> Edit </flux:button>
+
+                                        <flux:button href="{{ route('quotations.pdf', $quotation) }}" variant="ghost" size="sm" target="_blank"> PDF </flux:button>
 
                                     </div>
                                 </td>
