@@ -173,6 +173,12 @@ class QuotationForm extends Component
             'service_arrangement' => ['nullable', 'string'],
             'notes' => ['nullable', 'string'],
             'terms' => ['nullable', 'string'],
+
+            'status' => [
+                'required',
+                'in:Draft,Sent,Accepted,Rejected,Expired',
+            ],
+            
             'gst_applicable' => ['boolean'],
             'gst_rate' => ['required', 'numeric', 'min:0'],
             'items' => ['required', 'array', 'min:1'],

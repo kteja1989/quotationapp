@@ -5,13 +5,27 @@ namespace App\Livewire\Quotations;
 use App\Models\Quotation;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 #[Layout('components.layouts.app')]
 class QuotationList extends Component
 {
+    use WithPagination;
+
     public string $search = '';
 
     public string $status = 'all';
+
+
+    public function updatedSearch(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedStatus(): void
+    {
+        $this->resetPage();
+    }
 
     public function render()
     {
@@ -31,7 +45,8 @@ class QuotationList extends Component
             })
             ->orderByDesc('quotation_date')
             ->orderByDesc('id')
-            ->get();
+            //->get();
+            ->paginate(10);
 
         return view('livewire.quotations.quotation-list', [
             'quotations' => $quotations,

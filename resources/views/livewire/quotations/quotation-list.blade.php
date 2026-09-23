@@ -183,13 +183,13 @@
                                 </td>
 
                                 <td class="px-6 py-4">
-                                    <div class="flex justify-end gap-2">
+                                    <div class="flex justify-end gap-1">
 
-                                        <flux:button href="{{ route('quotations.view', $quotation) }}" variant="ghost" size="sm" wire:navigate> View </flux:button>
+                                        <flux:button href="{{ route('quotations.view', $quotation) }}" variant="ghost" size="sm" icon="eye" wire:navigate title="View quotation"></flux:button>
 
-                                        <flux:button href="{{ route('quotations.edit', $quotation) }}" variant="ghost" size="sm" wire:navigate> Edit </flux:button>
+                                        <flux:button href="{{ route('quotations.edit', $quotation) }}" variant="ghost" size="sm" icon="pencil" wire:navigate title="Edit quotation"></flux:button>
 
-                                        <flux:button href="{{ route('quotations.pdf', $quotation) }}" variant="ghost" size="sm" target="_blank"> PDF </flux:button>
+                                        <flux:button href="{{ route('quotations.pdf', $quotation) }}" variant="ghost" size="sm" icon="document-arrow-down" target="_blank" title="Generate PDF"></flux:button>
 
                                     </div>
                                 </td>
@@ -202,6 +202,12 @@
 
                 </table>
             </div>
+
+            @if ($quotations->hasPages())
+                <div class="border-t border-neutral-200 px-6 py-4 dark:border-neutral-700">
+                    {{ $quotations->links() }}
+                </div>
+            @endif
 
         @endif
 
