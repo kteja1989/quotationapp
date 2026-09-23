@@ -419,7 +419,7 @@ class QuotationForm extends Component
     {
         $this->status = $value;
     }
-
+    
     */
     public function updatedGstApplicable(): void
     {
